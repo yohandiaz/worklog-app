@@ -18,27 +18,33 @@ def create_worklog(db: Session, worklog: schemas.WorkLogCreate):
     if not worklog.date or worklog.date == "":
         worklog.date = datetime.now().date()
 
-    db_worklog = models.WorkLog(**worklog.model_dump())
+    db_worklog = models.WorkLog.from_schema(worklog)
     db.add(db_worklog)
     db.commit()
     db.refresh(db_worklog)
     return db_worklog
 
 
-# Get all worklog entries with optional pagination
 def get_worklogs(db: Session, skip: int = 0, limit: int = 10):
     """
     Retrieve a list of worklogs from the database.
 
     Args:
         db (Session): The database session.
-        skip (int, optional): The number of worklogs to skip. Defaults to 0.
-        limit (int, optional): The maximum number of worklogs to retrieve. Defaults to 10.
+        skip (int, optional): Number of worklogs to skip. Defaults to 0.
+        limit (int, optional): Maximum number of worklogs to retrieve. Defaults to 10.
 
     Returns:
         List[WorkLog]: A list of worklogs.
     """
-    return db.query(models.WorkLog).offset(skip).limit(limit).all()
+
+    return (
+        db.query(models.WorkLog)
+        .order_by(models.WorkLog.date.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 # Get a single worklog entry by its ID
@@ -72,7 +78,7 @@ def update_worklog(db: Session, worklog_id: int, worklog: schemas.WorkLogCreate)
         db.query(models.WorkLog).filter(models.WorkLog.id == worklog_id).first()
     )
     if db_worklog:
-        for key, value in worklog.dict().items():
+        for key, value in worklog.model_dump().items():
             setattr(db_worklog, key, value)
         db.commit()
         db.refresh(db_worklog)
