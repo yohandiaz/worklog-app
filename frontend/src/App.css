@@ -36,3 +36,56 @@
     transform: rotate(360deg);
   }
 }
+
+.worklog-list {
+  margin: 20px;
+}
+
+.worklog-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.worklog-details {
+  flex: 1;
+}
+
+.worklog-task {
+  font-weight: bold;
+}
+
+.worklog-description {
+  margin-left: 10px;
+  color: #555;
+}
+
+.worklog-date {
+  margin-left: 10px;
+  font-style: italic;
+}
+
+.highlight-star {
+  margin-left: 10px;
+  color: gold;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
