@@ -9,7 +9,6 @@ function App() {
   const [editingWorklog, setEditingWorklog] = useState(null);
   const [error, setError] = useState(null);
 
-  // Function to fetch worklogs
   const fetchWorklogs = async () => {
     try {
       const data = await getWorklogs();
@@ -20,7 +19,7 @@ function App() {
   };
 
   useEffect(() => {
-    fetchWorklogs(); // Fetch worklogs on component mount
+    fetchWorklogs();
   }, []);
 
   const handleEdit = (worklog) => {
@@ -29,7 +28,7 @@ function App() {
 
   const handleFormSubmit = () => {
     setEditingWorklog(null);
-    fetchWorklogs(); // Refresh the worklogs after form submission
+    fetchWorklogs();
   };
 
   return (

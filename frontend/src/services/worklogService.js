@@ -3,7 +3,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 console.log("API_URL", API_URL);
 
-export const getWorklogs = async (skip = 0, limit = 10) => {
+export const getWorklogs = async (skip = 0, limit = 100) => {
   try {
     const response = await fetch(`${API_URL}/worklogs?skip=${skip}&limit=${limit}`, {
       method: 'GET',
