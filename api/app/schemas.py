@@ -18,7 +18,7 @@ class WorkLogBase(BaseModel):
     """
 
     task: str
-    description: str = Field(default='')
+    description: str = Field(default="")
     date: Optional[date_type] = None
     is_highlighted: bool = False
     inserted_at: datetime = Field(default_factory=datetime.now)

@@ -1,4 +1,3 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
 
 from . import schemas
@@ -7,7 +6,6 @@ from .database import Base
 
 
 class WorkLog(Base):
-
     """
     Represents a work log entry.
 
@@ -36,6 +34,12 @@ class WorkLog(Base):
     # updated_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now())
 
     def __repr__(self):
+        """
+        Return a string representation of the WorkLog object.
+        Returns:
+            str: A formatted string representing the WorkLog object.
+        """
+
         return (
             f"<WorkLog(id={self.id}, task={self.task}, description={self.description}, "
             f"date={self.date}, is_highlighted={self.is_highlighted}, inserted_at={self.inserted_at})>"
@@ -43,6 +47,13 @@ class WorkLog(Base):
 
     @staticmethod
     def from_schema(scheme: schemas.WorkLogCreate) -> "WorkLog":
+        """
+        Convert a WorkLogCreate schema object to a WorkLog object.
+        Parameters:
+        - scheme: A WorkLogCreate schema object representing the data to be converted.
+        Returns:
+        - WorkLog: A WorkLog object with the converted data.
+        """
 
         return WorkLog(
             task=scheme.task,
