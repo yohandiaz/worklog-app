@@ -1,5 +1,5 @@
-from datetime import datetime
-from pydantic import BaseModel
+from datetime import datetime, date as date_type
+from pydantic import BaseModel, Field
 
 
 class WorkLogBase(BaseModel):
@@ -11,12 +11,15 @@ class WorkLogBase(BaseModel):
         description (str): Description of the work log entry.
         date (datetime): Date and time when the work log entry was created.
         is_highlighted (bool): Flag indicating if the work log entry is highlighted.
+        inserted_at (datetime): Date and time when the work log entry was inserted.
     """
 
     task: str
-    description: str
-    date: datetime
+    description: str = Field(default='')
+    date: date_type = Field(default_factory=date_type.today)
     is_highlighted: bool = False
+    inserted_at: datetime
+    # updated_at: datetime
 
 
 class WorkLogCreate(WorkLogBase):
