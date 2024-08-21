@@ -13,7 +13,7 @@ def create_worklog(db: Session, worklog: schemas.WorkLogCreate):
     Returns:
     - db_worklog (models.WorkLog): The created worklog entry.
     """
-    db_worklog = models.WorkLog(**worklog.model_dump())
+    db_worklog = models.WorkLog.from_schema(worklog)
     db.add(db_worklog)
     db.commit()
     db.refresh(db_worklog)
