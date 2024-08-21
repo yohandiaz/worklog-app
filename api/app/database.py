@@ -3,26 +3,30 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import PostgresDsn
+
 from dotenv import load_dotenv
 
 
 class Settings(BaseSettings):
-    postgres_dsn: PostgresDsn
+    postgres_host: str
+    postgres_port: int
+    postgres_user: str
+    postgres_password: str
+    postgres_db: str
 
-    model_config = SettingsConfigDict(case_sensitive=False, strict=True)
+    model_config = SettingsConfigDict(case_sensitive=False)
 
     @staticmethod
     def safe_constructor():
-
         load_dotenv()
-
         return Settings()  # type: ignore
 
     @property
     def sqlalchemy_database_url(self) -> str:
-
-        return str(self.postgres_dsn)
+        return (
+            f"postgresql://{self.postgres_user}:{self.postgres_password}"
+            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+        )
 
 
 engine = create_engine(Settings.safe_constructor().sqlalchemy_database_url)
