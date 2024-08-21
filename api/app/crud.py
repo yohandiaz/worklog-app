@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy.orm import Session
 from . import models, schemas
 
@@ -13,7 +14,11 @@ def create_worklog(db: Session, worklog: schemas.WorkLogCreate):
     Returns:
     - db_worklog (models.WorkLog): The created worklog entry.
     """
-    db_worklog = models.WorkLog.from_schema(worklog)
+
+    if not worklog.date or worklog.date == "":
+        worklog.date = datetime.now().date()
+
+    db_worklog = models.WorkLog(**worklog.model_dump())
     db.add(db_worklog)
     db.commit()
     db.refresh(db_worklog)

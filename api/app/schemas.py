@@ -1,4 +1,7 @@
 from datetime import datetime, date as date_type
+
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -16,9 +19,9 @@ class WorkLogBase(BaseModel):
 
     task: str
     description: str = Field(default='')
-    date: date_type = Field(default_factory=date_type.today)
+    date: Optional[date_type] = None
     is_highlighted: bool = False
-    inserted_at: datetime
+    inserted_at: datetime = Field(default_factory=datetime.now)
     # updated_at: datetime
 
 
@@ -46,7 +49,7 @@ class WorkLog(WorkLogBase):
         """
         Configuration class for the schema.
         Attributes:
-            orm_mode (bool): Flag indicating whether to use ORM mode or not.
+            from_attributes (bool): Flag indicating whether to create the schema from attributes.
         """
 
-        orm_mode = True
+        from_attributes = True
