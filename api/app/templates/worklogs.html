@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+    <title>Worklog App</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+            margin: 20px 0;
+        }
+        
+        /* Form Styling */
+        #worklog-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #worklog-form input[type="text"], 
+        #worklog-form input[type="date"], 
+        #worklog-form button {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        #worklog-form button {
+            background: #007bff;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+        }
+        #worklog-form button:hover {
+            background: #0056b3;
+        }
+
+        /* Group Styling */
+        .day-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            width: 100%;
+            max-width: 2000px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .day-title {
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        /* Worklog List Styling */
+        .worklog-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+            word-wrap: break-word; /* Break long words if needed */
+        }
+        .worklog-item:last-child {
+            border-bottom: none;
+        }
+        .worklog-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            overflow: hidden; /* Prevent overflowing outside the box */
+            text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+            white-space: nowrap; /* Prevent wrapping */
+        }
+        .worklog-content span {
+            flex: 1; /* Allow text to take available space */
+            overflow: hidden; /* Ensure it doesn't exceed the container */
+            text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+            white-space: nowrap; /* Keep text on a single line */
+        }
+        .highlight-star {
+            color: gold;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #f4f4f4;
+        }
+        button:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Work Logs</h1>
+
+    <form id="worklog-form">
+        <input type="hidden" name="id" />
+        <input type="text" name="task" placeholder="Task" required />
+        <input type="text" name="description" placeholder="Description" />
+        <input type="date" name="date" />
+        <label>
+            Highlighted
+            <input type="checkbox" name="is_highlighted" />
+        </label>
+        <button type="submit">Save Work log</button>
+    </form>
+    
+    <div id="worklog-list">
+        {% for day, logs in worklogs|groupby("date")|reverse %}
+        <div class="day-group">
+            <div class="day-title">
+                {{ day.strftime("%A, %d %B %Y") }}
+            </div>
+            {% for worklog in logs %}
+            <div class="worklog-item">
+                <div class="worklog-content">
+                    <span>{{ worklog.task }}</span>
+                    <span>{{ worklog.description }}</span>
+                    {% if worklog.is_highlighted %}
+                    <span class="highlight-star">⭐</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <button onclick="editWorklog({{ worklog.id }})">Edit</button>
+                    <button onclick="deleteWorklog({{ worklog.id }})">Delete</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+    let editingWorklogId = null;
+
+    document.getElementById("worklog-form").addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        // Convert checkbox value to boolean
+        data.is_highlighted = formData.has("is_highlighted");
+
+        // Use today's date if the date field is empty
+        if (!data.date) {
+            const today = new Date().toISOString().split("T")[0];
+            data.date = today; // Default to today's date
+        }
+
+        try {
+            const url = editingWorklogId
+                ? `/api/worklogs/${editingWorklogId}`
+                : "/api/worklogs/";
+            const method = editingWorklogId ? "PUT" : "POST";
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    editingWorklogId
+                        ? "Failed to update worklog"
+                        : "Failed to add worklog"
+                );
+            }
+
+            editingWorklogId = null; // Reset the editing ID
+            document.getElementById("worklog-form").reset(); // Clear the form
+            location.reload(); // Reload the page to see the updated entries
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    });
+
+    async function editWorklog(id) {
+        const response = await fetch(`/api/worklogs/${id}`);
+        const worklog = await response.json();
+        const form = document.getElementById("worklog-form");
+
+        form.task.value = worklog.task;
+        form.description.value = worklog.description;
+        form.date.value = worklog.date;
+        form.is_highlighted.checked = worklog.is_highlighted;
+        editingWorklogId = id; // Set the editing ID
+    }
+
+    async function deleteWorklog(id) {
+        if (!confirm("Are you sure you want to delete this worklog?")) {
+            return;
+        }
+
+        await fetch(`/api/worklogs/${id}`, { method: "DELETE" });
+        location.reload();
+    }
+    </script>
+</body>
+</html>

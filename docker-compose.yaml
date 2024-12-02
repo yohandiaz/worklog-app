@@ -23,16 +23,16 @@ services:
     networks:
       - worklog
 
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    env_file:
-      - ./frontend/.env
-    depends_on:
-      - api
-    networks:
-      - worklog
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - ./frontend/.env
+  #   depends_on:
+  #     - api
+  #   networks:
+  #     - worklog
 
 volumes:
   data:
